@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Quick Translator + Learning</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="row">
+      <select id="dir" title="翻译方向">
+        <option value="auto->zh-CN">自动识别 → 中文</option>
+        <option value="auto->en">自动识别 → English</option>
+        <option value="zh-CN->en">中文 → English</option>
+        <option value="en->zh-CN">English → 中文</option>
+      </select>
+      <button id="swap" title="交换方向">交换</button>
+      <a id="openSettings" href="#" title="设置">设置</a>
+    </div>
+  </header>
+
+  <main>
+    <textarea id="src" placeholder="在此粘贴或输入要翻译/学习的文本…（Ctrl/⌘ + Enter 直接生成）"></textarea>
+
+    <div class="row">
+      <button id="runAll">翻译与学习</button>
+      <button id="copyAll">复制全部结果</button>
+      <small id="status"></small>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head"><span>Google 直译（基线）</span><button class="copy" data-copy="gBase">复制</button></div>
+      <pre id="gBase" class="pre"></pre>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span>AI 翻译（Gemini）</span><button class="copy" data-copy="aiTrans">复制</button></div>
+      <pre id="aiTrans" class="pre"></pre>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span>语法纠正（英文）</span><button class="copy" data-copy="grammar">复制</button></div>
+      <pre id="grammar" class="pre"></pre>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span>AI 建议（多风格改写）</span><button class="copy" data-copy="suggest">复制</button></div>
+      <pre id="suggest" class="pre"></pre>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span>英语学习建议</span><button class="copy" data-copy="tips">复制</button></div>
+      <pre id="tips" class="pre"></pre>
+    </section>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>

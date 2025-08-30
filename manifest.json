@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Quick CN↔EN Translator (Learning+)",
+  "version": "2.0.0",
+  "description": "记忆翻译方向；Google直译 + Gemini 学习面板（AI翻译/语法纠正/AI建议/学习建议）；右键快捷翻译与学习。",
+  "permissions": [
+    "storage",
+    "contextMenus",
+    "activeTab",
+    "scripting",
+    "clipboardWrite"
+  ],
+  "host_permissions": [
+    "https://translate.googleapis.com/*",
+    "http://localhost:3001/*"
+  ],
+  "action": {
+    "default_title": "Quick Translator + Learning",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_page": "options.html"
+}
