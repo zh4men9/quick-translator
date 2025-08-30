@@ -3,6 +3,12 @@
   "name": "Quick CN↔EN Translator (Learning+)",
   "version": "2.0.0",
   "description": "记忆翻译方向；Google直译 + Gemini 学习面板（AI翻译/语法纠正/AI建议/学习建议）；右键快捷翻译与学习。",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
   "permissions": [
     "storage",
     "contextMenus",
@@ -17,7 +23,13 @@
   ],
   "action": {
     "default_title": "Quick Translator + Learning",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
   },
   "background": {
     "service_worker": "background.js"

@@ -1,6 +1,8 @@
 const STORAGE_KEYS = {
   LAST_DIR: "lastDirection",
-  SETTINGS: "settings"
+  SETTINGS: "settings",
+  HISTORY: "translationHistory",
+  LAST_RESULT: "lastTranslationResult"
 };
 
 const DEFAULTS = {
@@ -70,6 +72,13 @@ $("#openSettings").addEventListener("click", (e) => {
 $("#runAll").addEventListener("click", runAll);
 $("#copyAll").addEventListener("click", copyAll);
 $("#pinToggle").addEventListener("click", togglePin);
+$("#toggleHistory").addEventListener("click", toggleHistoryPanel);
+$("#clearHistory").addEventListener("click", async (e) => {
+  e.preventDefault();
+  if (confirm("确定要清除所有历史记录吗？")) {
+    await clearHistory();
+  }
+});
 Array.from(document.querySelectorAll(".copy")).forEach(btn => {
   btn.addEventListener("click", () => copyById(btn.dataset.copy));
 });
@@ -116,6 +125,9 @@ srcEl.addEventListener("keydown", (e) => {
   }
   
   console.log('=== 扩展初始化完成 ===');
+  
+  // 自动加载上次翻译结果
+  await loadLastResult();
 })();
 
 async function saveDirection(val) {
@@ -167,6 +179,20 @@ async function runAll() {
     setPre("suggest", ai.aiSuggestions || "");
     setPre("tips", ai.learningTips || "");
     setStatus("全部完成");
+    
+    // 保存翻译结果到历史记录
+    await saveTranslationResult({
+      text,
+      direction: dirEl.value,
+      timestamp: Date.now(),
+      results: {
+        gBase: document.getElementById("gBase").textContent,
+        aiTrans: ai.aiTranslate || "",
+        grammar: ai.grammarFix || "",
+        suggest: ai.aiSuggestions || "",
+        tips: ai.learningTips || ""
+      }
+    });
   } catch (e) {
     console.error('AI tasks error:', e);
     setStatus("AI处理失败: " + (e.message || e));
@@ -357,4 +383,150 @@ async function copyAll() {
   }).join("\n\n");
   try { await navigator.clipboard.writeText(merged); setStatus("已复制全部"); }
   catch { setStatus("复制失败"); }
+}
+
+// 历史记录管理
+async function saveTranslationResult(result) {
+  try {
+    // 保存当前结果
+    await chrome.storage.local.set({ [STORAGE_KEYS.LAST_RESULT]: result });
+    
+    // 获取历史记录
+    const data = await chrome.storage.local.get(STORAGE_KEYS.HISTORY);
+    let history = data[STORAGE_KEYS.HISTORY] || [];
+    
+    // 添加到历史记录（最多保存10条）
+    history.unshift(result);
+    if (history.length > 10) {
+      history = history.slice(0, 10);
+    }
+    
+    await chrome.storage.local.set({ [STORAGE_KEYS.HISTORY]: history });
+    console.log('翻译结果已保存到历史记录');
+  } catch (e) {
+    console.error('保存历史记录失败:', e);
+  }
+}
+
+async function loadLastResult() {
+  try {
+    const data = await chrome.storage.local.get(STORAGE_KEYS.LAST_RESULT);
+    const lastResult = data[STORAGE_KEYS.LAST_RESULT];
+    
+    if (lastResult && lastResult.results) {
+      // 恢复输入文本和方向
+      srcEl.value = lastResult.text || "";
+      dirEl.value = lastResult.direction || DEFAULTS.lastDirection;
+      
+      // 恢复翻译结果
+      setPre("gBase", lastResult.results.gBase || "");
+      setPre("aiTrans", lastResult.results.aiTrans || "");
+      setPre("grammar", lastResult.results.grammar || "");
+      setPre("suggest", lastResult.results.suggest || "");
+      setPre("tips", lastResult.results.tips || "");
+      
+      setStatus("已恢复上次翻译结果");
+      console.log('已恢复上次翻译结果');
+    }
+  } catch (e) {
+    console.error('加载上次结果失败:', e);
+  }
+}
+
+function toggleHistoryPanel() {
+  const panel = $("#historyPanel");
+  if (panel.classList.contains("hidden")) {
+    panel.classList.remove("hidden");
+    loadHistoryList();
+  } else {
+    panel.classList.add("hidden");
+  }
+}
+
+async function loadHistoryList() {
+  try {
+    const data = await chrome.storage.local.get(STORAGE_KEYS.HISTORY);
+    const history = data[STORAGE_KEYS.HISTORY] || [];
+    const listEl = $("#historyList");
+    
+    if (history.length === 0) {
+      listEl.innerHTML = '<div style="text-align: center; color: #6c757d; padding: 20px;">暂无历史记录</div>';
+      return;
+    }
+    
+    listEl.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp);
+      const timeStr = date.toLocaleString('zh-CN', {
+        month: '2-digit',
+        day: '2-digit', 
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      return `
+        <div class="history-item" data-index="${index}">
+          <div class="history-item-header">
+            <div class="history-item-text" title="${item.text}">${item.text}</div>
+            <div>
+              <span class="history-item-direction">${item.direction}</span>
+              <span class="history-item-time">${timeStr}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    // 为每个历史记录项添加点击事件
+    listEl.querySelectorAll('.history-item').forEach((item, index) => {
+      item.addEventListener('click', () => loadHistoryItem(index));
+    });
+    
+  } catch (e) {
+    console.error('加载历史记录失败:', e);
+  }
+}
+
+async function loadHistoryItem(index) {
+  try {
+    const data = await chrome.storage.local.get(STORAGE_KEYS.HISTORY);
+    const history = data[STORAGE_KEYS.HISTORY] || [];
+    const item = history[index];
+    
+    if (item) {
+      // 加载历史记录的内容
+      srcEl.value = item.text;
+      dirEl.value = item.direction;
+      
+      setPre("gBase", item.results.gBase || "");
+      setPre("aiTrans", item.results.aiTrans || "");
+      setPre("grammar", item.results.grammar || "");
+      setPre("suggest", item.results.suggest || "");
+      setPre("tips", item.results.tips || "");
+      
+      // 隐藏历史面板
+      $("#historyPanel").classList.add("hidden");
+      
+      setStatus("已加载历史记录");
+    }
+  } catch (e) {
+    console.error('加载历史记录项失败:', e);
+  }
+}
+
+// 全局函数，供 HTML onclick 使用
+window.loadHistoryItem = loadHistoryItem;
+
+async function clearHistory() {
+  try {
+    await chrome.storage.local.remove([STORAGE_KEYS.HISTORY, STORAGE_KEYS.LAST_RESULT]);
+    clearResults();
+    srcEl.value = "";
+    // 清空历史列表
+    $("#historyList").innerHTML = '<div style="text-align: center; color: #6c757d; padding: 20px;">暂无历史记录</div>';
+    setStatus("历史记录已清除");
+    console.log('历史记录已清除');
+  } catch (e) {
+    console.error('清除历史记录失败:', e);
+    setStatus("清除历史记录失败");
+  }
 }

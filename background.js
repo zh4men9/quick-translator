@@ -83,30 +83,43 @@ function injectLearningOverlay(toRender) {
   .qt-overlay button { background:#2b2b2b; color:#fff; border:1px solid #333; padding:6px 10px; border-radius:8px; cursor:pointer }
   .qt-overlay .qt-row { margin-top:8px }
   `;
-  const js = (text) => {
-    const el = document.createElement('div');
-    el.className = 'qt-overlay';
-    el.innerHTML = `
-      <div class="qt-top">
-        <h4>学习版翻译（Gemini）</h4>
-        <div>
-          <button id="qt-copy">复制</button>
-          <button id="qt-close">关闭</button>
-        </div>
+  return { css };
+}
+
+// 在网页中显示学习浮层的函数（会被注入到页面中）
+function showLearningOverlay(dataJson) {
+  const data = JSON.parse(dataJson);
+  
+  // 移除已存在的浮层
+  const existingOverlay = document.querySelector('.qt-overlay');
+  if (existingOverlay) {
+    existingOverlay.remove();
+  }
+  
+  const el = document.createElement('div');
+  el.className = 'qt-overlay';
+  el.innerHTML = `
+    <div class="qt-top">
+      <h4>学习版翻译（Gemini）</h4>
+      <div>
+        <button id="qt-copy">复制</button>
+        <button id="qt-close">关闭</button>
       </div>
-      <div class="qt-row"><strong>AI 翻译：</strong><pre id="qt-translate"></pre></div>
-      <div class="qt-row"><strong>学习建议：</strong><pre id="qt-tips"></pre></div>
-    `;
-    document.body.appendChild(el);
-    const data = JSON.parse(text);
-    el.querySelector('#qt-translate').textContent = data.aiTranslate || "";
-    el.querySelector('#qt-tips').textContent = data.learningTips || "";
-    el.querySelector('#qt-close').onclick = () => el.remove();
-    el.querySelector('#qt-copy').onclick = () => navigator.clipboard.writeText(
-      `AI翻译：\n${data.aiTranslate || ""}\n\n学习建议：\n${data.learningTips || ""}`
-    );
+    </div>
+    <div class="qt-row"><strong>AI 翻译：</strong><pre id="qt-translate"></pre></div>
+    <div class="qt-row"><strong>学习建议：</strong><pre id="qt-tips"></pre></div>
+  `;
+  
+  document.body.appendChild(el);
+  
+  el.querySelector('#qt-translate').textContent = data.aiTranslate || "";
+  el.querySelector('#qt-tips').textContent = data.learningTips || "";
+  
+  el.querySelector('#qt-close').onclick = () => el.remove();
+  el.querySelector('#qt-copy').onclick = () => {
+    const copyText = `AI翻译：\n${data.aiTranslate || ""}\n\n学习建议：\n${data.learningTips || ""}`;
+    navigator.clipboard.writeText(copyText).catch(() => {});
   };
-  return { css, js: `(${js})(\`${JSON.stringify(toRender).replace(/`/g,"\\`")}\`)` };
 }
 
 // Gemini 多任务调用（在 popup 用完全体，这里右键只用两项）
@@ -216,7 +229,11 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       const ai = await runGeminiMiniTasks({ text: info.selectionText, targetLang: tl === "zh-CN" ? "Chinese" : "English" });
       const overlay = injectLearningOverlay(ai);
       await chrome.scripting.insertCSS({ target: { tabId: tab.id }, css: overlay.css });
-      await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: new Function(overlay.js) });
+      await chrome.scripting.executeScript({ 
+        target: { tabId: tab.id }, 
+        func: showLearningOverlay,
+        args: [JSON.stringify(ai)]
+      });
       // 同时复制
       const copyText = `AI翻译：\n${ai.aiTranslate || ""}\n\n学习建议：\n${ai.learningTips || ""}`;
       await chrome.scripting.executeScript({

@@ -2,8 +2,8 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   margin: 0;
   width: 450px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #333;
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+  color: #2d3436;
   min-height: 500px;
 }
 
@@ -34,14 +34,14 @@ header .row {
 }
 
 #dir:focus {
-  border-color: #667eea;
+  border-color: #74b9ff;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(116, 185, 255, 0.15);
 }
 
 #swap, #pinToggle {
   padding: 8px 12px;
-  background: #667eea;
+  background: #74b9ff;
   color: white;
   border: none;
   border-radius: 8px;
@@ -51,7 +51,7 @@ header .row {
 }
 
 #swap:hover, #pinToggle:hover {
-  background: #5a67d8;
+  background: #0984e3;
   transform: translateY(-1px);
 }
 
@@ -66,7 +66,7 @@ header .row {
 #openSettings {
   margin-left: auto;
   text-decoration: none;
-  color: #667eea;
+  color: #74b9ff;
   font-weight: 500;
   padding: 8px 12px;
   border-radius: 6px;
@@ -74,8 +74,8 @@ header .row {
 }
 
 #openSettings:hover {
-  background: rgba(102, 126, 234, 0.1);
-  color: #5a67d8;
+  background: rgba(116, 185, 255, 0.1);
+  color: #0984e3;
 }
 textarea#src {
   width: 100%;
@@ -93,9 +93,9 @@ textarea#src {
 }
 
 textarea#src:focus {
-  border-color: #667eea;
+  border-color: #74b9ff;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(116, 185, 255, 0.15);
 }
 
 textarea#src::placeholder {
@@ -108,7 +108,7 @@ textarea#src::placeholder {
   margin: 16px 0;
 }
 
-#runAll, #copyAll {
+#runAll, #copyAll, #toggleHistory, #clearHistory {
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
@@ -118,14 +118,74 @@ textarea#src::placeholder {
   transition: all 0.2s ease;
 }
 
+#toggleHistory, #clearHistory {
+  padding: 8px 12px;
+  background: #636e72;
+  color: white;
+  font-size: 16px;
+}
+
+#toggleHistory:hover, #clearHistory:hover {
+  background: #2d3436;
+}
+
+.history-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.history-item {
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f8f9fa;
+}
+
+.history-item:hover {
+  background: #e9ecef;
+  border-color: #74b9ff;
+}
+
+.history-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.history-item-text {
+  font-weight: 500;
+  color: #495057;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-item-time {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.history-item-direction {
+  font-size: 11px;
+  background: #74b9ff;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
 #runAll {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
   color: white;
 }
 
 #runAll:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(116, 185, 255, 0.4);
 }
 
 #copyAll {
@@ -185,7 +245,7 @@ small#status {
 
 .copy {
   padding: 6px 12px;
-  background: #667eea;
+  background: #74b9ff;
   color: white;
   border: none;
   border-radius: 6px;
@@ -195,8 +255,25 @@ small#status {
 }
 
 .copy:hover {
-  background: #5a67d8;
+  background: #0984e3;
   transform: scale(1.05);
+}
+
+.close-btn {
+  padding: 4px 8px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: bold;
+}
+
+.close-btn:hover {
+  background: #c82333;
+  transform: scale(1.1);
 }
 .hidden {
   display: none;

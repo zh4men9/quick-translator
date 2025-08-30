@@ -1,0 +1,39 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#74b9ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0984e3;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="text-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f1f2f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景圆角矩形 -->
+  <rect x="8" y="8" width="112" height="112" rx="24" ry="24" fill="url(#bg-gradient)"/>
+  
+  <!-- 外边框 -->
+  <rect x="8" y="8" width="112" height="112" rx="24" ry="24" fill="none" stroke="#0984e3" stroke-width="2" opacity="0.3"/>
+  
+  <!-- 翻译箭头背景 -->
+  <circle cx="64" cy="45" r="18" fill="rgba(255,255,255,0.15)"/>
+  
+  <!-- 双向箭头 -->
+  <path d="M 45 40 L 55 35 L 55 38 L 73 38 L 73 35 L 83 40 L 73 45 L 73 42 L 55 42 L 55 45 Z" fill="url(#text-gradient)" stroke="#0984e3" stroke-width="0.5"/>
+  <path d="M 83 50 L 73 55 L 73 52 L 55 52 L 55 55 L 45 50 L 55 45 L 55 48 L 73 48 L 73 45 Z" fill="url(#text-gradient)" stroke="#0984e3" stroke-width="0.5"/>
+  
+  <!-- 中英文标识 -->
+  <text x="30" y="78" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="url(#text-gradient)">中</text>
+  <text x="98" y="78" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="url(#text-gradient)">EN</text>
+  
+  <!-- AI学习图标 -->
+  <circle cx="64" cy="95" r="8" fill="rgba(255,255,255,0.2)"/>
+  <path d="M 60 91 L 64 95 L 68 91" fill="none" stroke="url(#text-gradient)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M 60 99 L 64 95 L 68 99" fill="none" stroke="url(#text-gradient)" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- 装饰性光点 -->
+  <circle cx="25" cy="30" r="2" fill="rgba(255,255,255,0.6)"/>
+  <circle cx="103" cy="35" r="1.5" fill="rgba(255,255,255,0.4)"/>
+  <circle cx="95" cy="100" r="1.2" fill="rgba(255,255,255,0.5)"/>
+</svg>

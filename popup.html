@@ -15,8 +15,8 @@
           <option value="zh-CN->en">中文 → English</option>
           <option value="en->zh-CN">English → 中文</option>
         </select>
-        <button id="swap" title="交换方向">🔄</button>
-        <button id="pinToggle" title="固定窗口">📌</button>
+        <button id="swap" title="交换方向">⇄</button>
+        <button id="pinToggle" title="固定窗口">📍</button>
         <a id="openSettings" href="#" title="设置">⚙️ 设置</a>
       </div>
     </header>
@@ -27,8 +27,19 @@
     <div class="row">
       <button id="runAll">翻译与学习</button>
       <button id="copyAll">复制全部结果</button>
+      <button id="toggleHistory" title="显示/隐藏历史记录">📋</button>
+      <button id="clearHistory" title="清除历史记录">🗑</button>
       <small id="status"></small>
     </div>
+
+    <!-- 历史记录面板 -->
+    <section id="historyPanel" class="panel hidden">
+      <div class="panel-head">
+        <span>翻译历史</span>
+        <button class="close-btn" onclick="document.getElementById('historyPanel').classList.add('hidden')">✕</button>
+      </div>
+      <div id="historyList" class="history-list"></div>
+    </section>
 
     <section class="panel">
       <div class="panel-head"><span>Google 直译（基线）</span><button class="copy" data-copy="gBase">复制</button></div>
