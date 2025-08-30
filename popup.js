@@ -14,6 +14,8 @@ const DEFAULTS = {
     provider: "auto",
     authHeaderName: "Authorization",
     temperature: 0.4,
+    showSimpleTranslate: true,
+    simpleIncludeGemini: false,
     prompts: {
       aiTranslate: "You are an expert Chinese<>English translator. Translate the user input to {{TARGET_LANG}} with natural, accurate, concise phrasing. Output ONLY the translation.",
       grammarFix: "You are an English writing corrector. Fix grammar/spelling/style of the English text. Provide both English and Chinese versions:\n\n**English Version:**\n1) Corrected text\n2) Brief reasons (bullet points)\n\n**中文版本：**\n1) 纠正后的文本\n2) 简要原因（要点形式）",
@@ -70,6 +72,7 @@ $("#openSettings").addEventListener("click", (e) => {
 });
 
 $("#runAll").addEventListener("click", runAll);
+$("#simpleTranslate").addEventListener("click", runSimpleTranslate);
 $("#copyAll").addEventListener("click", copyAll);
 $("#pinToggle").addEventListener("click", togglePin);
 $("#toggleHistory").addEventListener("click", toggleHistoryPanel);
@@ -94,9 +97,18 @@ srcEl.addEventListener("keydown", (e) => {
   console.log('Chrome Storage可用:', !!chrome.storage);
   
   try {
-    const st = await chrome.storage.sync.get(STORAGE_KEYS.LAST_DIR);
+    const st = await chrome.storage.sync.get([STORAGE_KEYS.LAST_DIR, STORAGE_KEYS.SETTINGS]);
     dirEl.value = st[STORAGE_KEYS.LAST_DIR] || DEFAULTS.lastDirection;
     console.log('翻译方向设置加载:', dirEl.value);
+    
+    // 根据设置显示/隐藏简化翻译按钮
+    const settings = st[STORAGE_KEYS.SETTINGS] || DEFAULTS.settings;
+    const simpleBtn = $("#simpleTranslate");
+    if (settings.showSimpleTranslate === false) {
+      simpleBtn.style.display = 'none';
+    } else {
+      simpleBtn.style.display = 'inline-block';
+    }
     
     // 检查是否已有固定窗口
     const local = await chrome.storage.local.get('pinnedWindowId');
@@ -196,6 +208,63 @@ async function runAll() {
   } catch (e) {
     console.error('AI tasks error:', e);
     setStatus("AI处理失败: " + (e.message || e));
+  }
+}
+
+async function runSimpleTranslate() {
+  const text = srcEl.value.trim();
+  if (!text) { setStatus("请输入文本"); return; }
+  
+  await saveDirection(dirEl.value);
+  const { sl, tl } = splitDir(dirEl.value);
+  const targetLang = (tl === "zh-CN") ? "Chinese" : "English";
+  
+  setStatus("正在快速翻译...");
+  clearResults();
+  
+  try {
+    // 获取设置，检查是否需要包含Gemini翻译
+    const st = await chrome.storage.sync.get(STORAGE_KEYS.SETTINGS);
+    const settings = st[STORAGE_KEYS.SETTINGS] || DEFAULTS.settings;
+    
+    // Google翻译
+    const googleResult = await googleTranslate(text, sl, tl);
+    setPre("gBase", googleResult || "Google翻译失败");
+    
+    // 如果设置中启用了simpleIncludeGemini，则也执行Gemini翻译
+    if (settings.simpleIncludeGemini) {
+      try {
+        const ai = await runGeminiTasks(text, targetLang);
+        setPre("aiTrans", ai.aiTranslate || "");
+        setStatus("快速翻译完成（含AI翻译）");
+      } catch (e) {
+        console.error('Gemini simple translate error:', e);
+        setPre("aiTrans", "AI翻译失败");
+        setStatus("Google翻译完成，AI翻译失败");
+      }
+    } else {
+      setStatus("快速翻译完成");
+    }
+    
+    // 保存简化翻译结果到历史记录
+    await saveTranslationResult({
+      text,
+      direction: dirEl.value,
+      timestamp: Date.now(),
+      isSimple: true,
+      results: {
+        gBase: document.getElementById("gBase").textContent,
+        aiTrans: settings.simpleIncludeGemini ? document.getElementById("aiTrans").textContent : "",
+        grammar: "",
+        suggest: "",
+        tips: ""
+      }
+    });
+    
+  } catch (e) {
+    console.error('Simple translate error:', e);
+    setStatus("快速翻译失败: " + (e.message || e));
+    setPre("gBase", "翻译失败");
   }
 }
 

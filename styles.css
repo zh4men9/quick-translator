@@ -108,7 +108,7 @@ textarea#src::placeholder {
   margin: 16px 0;
 }
 
-#runAll, #copyAll, #toggleHistory, #clearHistory {
+#runAll, #copyAll, #simpleTranslate, #toggleHistory, #clearHistory {
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
@@ -186,6 +186,16 @@ textarea#src::placeholder {
 #runAll:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(116, 185, 255, 0.4);
+}
+
+#simpleTranslate {
+  background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+  color: white;
+}
+
+#simpleTranslate:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(162, 155, 254, 0.4);
 }
 
 #copyAll {

@@ -13,6 +13,8 @@ const DEFAULTS = {
     provider: "auto", // auto | openai | gemini
     authHeaderName: "Authorization", // 常见是 Authorization: Bearer xxx
     temperature: 0.4,
+    showSimpleTranslate: true, // 显示简化翻译按钮
+    simpleIncludeGemini: false, // 简化翻译是否包含Gemini
     prompts: {
       aiTranslate: "You are an expert Chinese<>English translator. Translate the user input to {{TARGET_LANG}} with natural, accurate, concise phrasing. Output ONLY the translation.",
       grammarFix: "You are an English writing corrector. Fix grammar/spelling/style of the English text. Provide both English and Chinese versions:\n\n**English Version:**\n1) Corrected text\n2) Brief reasons (bullet points)\n\n**中文版本：**\n1) 纠正后的文本\n2) 简要原因（要点形式）",

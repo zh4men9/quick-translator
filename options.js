@@ -22,6 +22,8 @@ const DEFAULTS = {
   provider: "auto", // auto | openai | gemini
   authHeaderName: "Authorization",
   temperature: 0.4,
+  showSimpleTranslate: true, // 显示简化翻译按钮
+  simpleIncludeGemini: false, // 简化翻译是否包含Gemini
   prompts: {
     aiTranslate:
       "You are an expert Chinese<>English translator. Translate the user input to {{TARGET_LANG}} with natural, accurate, concise phrasing. Output ONLY the translation.",
@@ -74,6 +76,8 @@ const stat = $("#stat");
     $("#provider").value = cfg.provider || "auto";
     $("#authHeaderName").value = cfg.authHeaderName || "Authorization";
     $("#temperature").value = cfg.temperature ?? 0.4;
+    $("#showSimpleTranslate").checked = cfg.showSimpleTranslate ?? true;
+    $("#simpleIncludeGemini").checked = cfg.simpleIncludeGemini ?? false;
 
     // 如果没有保存的提示词配置，使用最新默认值
     $("#p_aiTranslate").value = cfg.prompts?.aiTranslate || DEFAULTS.prompts.aiTranslate;
@@ -142,6 +146,8 @@ $("#save").addEventListener("click", async () => {
       provider: $("#provider").value || "auto",
       authHeaderName: $("#authHeaderName").value.trim() || "Authorization",
       temperature: clampNumber(parseFloat($("#temperature").value), 0, 2, 0.4),
+      showSimpleTranslate: $("#showSimpleTranslate").checked,
+      simpleIncludeGemini: $("#simpleIncludeGemini").checked,
       prompts: {
         aiTranslate: $("#p_aiTranslate").value || DEFAULTS.prompts.aiTranslate,
         grammarFix: $("#p_grammarFix").value || DEFAULTS.prompts.grammarFix,

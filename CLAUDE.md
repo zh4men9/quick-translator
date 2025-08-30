@@ -51,6 +51,7 @@ This is a Chrome extension for Chinese-English translation with AI learning feat
 - Keyboard shortcuts (Ctrl+Enter for translation)
 - Copy to clipboard functionality
 - CSP-compliant code (no eval usage)
+- Simple translate button for quick Google-only translation (configurable with optional Gemini)
 
 ### Configuration
 - API settings stored in Chrome sync storage
