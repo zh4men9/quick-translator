@@ -67,9 +67,8 @@
 ## 📖 使用教程
 
 ### 🎯 基础翻译
-
 <div align="center">
-<img src="screenshots/basic-translation.png" alt="基础翻译界面" width="400"/>
+<img src="image/README/1756537204641.png" alt="基础翻译界面" width="400"/>
 </div>
 
 1. **打开扩展**: 点击工具栏图标或使用快捷键
@@ -79,9 +78,8 @@
 5. **查看结果**: 查看Google直译和AI增强结果
 
 ### 🤖 AI学习功能
-
 <div align="center">
-<img src="screenshots/ai-learning.png" alt="AI学习功能" width="400"/>
+<img src="image/README/1756537232290.png" alt="AI学习功能" width="400"/>
 </div>
 
 #### 语法纠正
@@ -99,10 +97,9 @@
 - **练习题**: 生成2个相关练习题，答案在末尾
 
 ### ⚡ 快捷操作
-
 #### 右键翻译
 <div align="center">
-<img src="screenshots/context-menu.png" alt="右键菜单" width="300"/>
+<img src="image/README/1756537177775.png" alt="右键菜单" width="300"/>
 </div>
 
 1. **选中文字**: 在任意网页选中要翻译的文字
@@ -117,9 +114,8 @@
 - `📍` 按钮: 固定/取消固定窗口
 
 ### 📋 历史记录
-
 <div align="center">
-<img src="screenshots/history.png" alt="历史记录" width="400"/>
+<img src="image/README/1756537121893.png" alt="历史记录" width="400"/>
 </div>
 
 1. **查看历史**: 点击 `📋` 按钮打开历史面板
@@ -127,9 +123,8 @@
 3. **清除历史**: 点击 `🗑` 按钮清除所有记录
 
 ### ⚙️ 高级设置
-
 <div align="center">
-<img src="screenshots/settings.png" alt="设置界面" width="500"/>
+<img src="image/README/1756537080474.png" alt="设置界面" width="500"/>
 </div>
 
 #### API配置方案
