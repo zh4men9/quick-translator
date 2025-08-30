@@ -1,56 +1,221 @@
 body {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  margin: 12px;
-  width: 420px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  width: 450px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #333;
+  min-height: 500px;
+}
+
+.container {
+  background: white;
+  margin: 0;
+  padding: 20px;
+  border-radius: 0;
+  box-shadow: none;
 }
 header .row {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: center;
+  padding: 16px 0;
+  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 16px;
 }
+
+#dir {
+  flex: 1;
+  padding: 8px 12px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+#dir:focus {
+  border-color: #667eea;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+#swap, #pinToggle {
+  padding: 8px 12px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+#swap:hover, #pinToggle:hover {
+  background: #5a67d8;
+  transform: translateY(-1px);
+}
+
+#pinToggle.pinned {
+  background: #28a745;
+}
+
+#pinToggle.pinned:hover {
+  background: #218838;
+}
+
 #openSettings {
   margin-left: auto;
   text-decoration: none;
-  color: #0b66d0;
+  color: #667eea;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+#openSettings:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #5a67d8;
 }
 textarea#src {
   width: 100%;
   height: 120px;
-  margin: 10px 0;
+  margin: 16px 0;
+  padding: 12px;
+  border: 2px solid #e1e5e9;
+  border-radius: 12px;
   box-sizing: border-box;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  transition: all 0.2s ease;
+}
+
+textarea#src:focus {
+  border-color: #667eea;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+textarea#src::placeholder {
+  color: #a0a0a0;
 }
 .row {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: center;
-  margin: 8px 0;
+  margin: 16px 0;
 }
+
+#runAll, #copyAll {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#runAll {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+#runAll:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+#copyAll {
+  background: #f8f9fa;
+  color: #495057;
+  border: 2px solid #e1e5e9;
+}
+
+#copyAll:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
 small#status {
-  color: #666;
+  color: #6c757d;
+  font-weight: 500;
+  margin-left: auto;
 }
 .panel {
-  border: 1px solid #e6e6e6;
-  border-radius: 10px;
-  padding: 8px;
-  margin-bottom: 10px;
+  border: 2px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
 }
+
+.panel:hover {
+  border-color: #e1e5e9;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
 .panel-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-weight: 600;
+  font-size: 15px;
+  color: #495057;
+  margin-bottom: 12px;
 }
+
 .pre {
   white-space: pre-wrap;
   word-wrap: break-word;
-  background: #fafafa;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
   border-radius: 8px;
-  padding: 8px;
-  min-height: 40px;
+  padding: 12px;
+  min-height: 50px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #495057;
 }
-button {
-  padding: 6px 10px;
+
+.copy {
+  padding: 6px 12px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copy:hover {
+  background: #5a67d8;
+  transform: scale(1.05);
 }
 .hidden {
   display: none;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }

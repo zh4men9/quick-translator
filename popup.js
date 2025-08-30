@@ -4,11 +4,26 @@ const STORAGE_KEYS = {
 };
 
 const DEFAULTS = {
-  lastDirection: "auto->zh-CN"
+  lastDirection: "auto->zh-CN",
+  settings: {
+    apiBase: "http://localhost:3001/proxy/gemini",
+    apiKey: "zh4men9",
+    model: "gemini-2.5-flash",
+    provider: "auto",
+    authHeaderName: "Authorization",
+    temperature: 0.4,
+    prompts: {
+      aiTranslate: "You are an expert Chinese<>English translator. Translate the user input to {{TARGET_LANG}} with natural, accurate, concise phrasing. Output ONLY the translation.",
+      grammarFix: "You are an English writing corrector. Fix grammar/spelling/style of the English text. Provide both English and Chinese versions:\n\n**English Version:**\n1) Corrected text\n2) Brief reasons (bullet points)\n\n**中文版本：**\n1) 纠正后的文本\n2) 简要原因（要点形式）",
+      aiSuggestions: "Provide 3 alternative phrasings for the text in {{TARGET_LANG}}. Give both English and Chinese versions:\n\n**English Version:**\n1. [formal] ...\n2. [casual] ...\n3. [concise] ...\n\n**中文版本：**\n1. [正式] ...\n2. [随意] ...\n3. [简洁] ...",
+      learningTips: "From the text (assume target language is {{TARGET_LANG}}), extract learning materials. Provide both English and Chinese versions:\n\n**English Version:**\n- 5 useful collocations/phrases\n- 2 key grammar notes\n- 2 mini exercises (fill-in-the-blank or paraphrase)\nAnswers at the end.\n\n**中文版本：**\n- 5个有用的搭配/短语\n- 2个关键语法要点\n- 2个小练习（填空或改写）\n答案在末尾。"
+    }
+  }
 };
 
 const $ = (s) => document.querySelector(s);
 const dirEl = $("#dir"), srcEl = $("#src"), statusEl = $("#status");
+let isPinned = false;
 
 $("#swap").addEventListener("click", () => {
   const map = {
@@ -22,12 +37,39 @@ $("#swap").addEventListener("click", () => {
 });
 
 $("#openSettings").addEventListener("click", (e) => {
+  console.log('=== 设置按钮点击事件触发 ===');
   e.preventDefault();
-  chrome.runtime.openOptionsPage();
+  
+  // 显示点击反馈
+  setStatus('正在打开设置...');
+  
+  try {
+    console.log('Chrome runtime available:', !!chrome.runtime);
+    console.log('openOptionsPage function available:', !!chrome.runtime.openOptionsPage);
+    
+    if (chrome.runtime && chrome.runtime.openOptionsPage) {
+      chrome.runtime.openOptionsPage().then(() => {
+        console.log('Options page opened successfully');
+        setStatus('设置页面已打开');
+      }).catch((error) => {
+        console.error('Failed to open options page:', error);
+        setStatus('打开设置失败: ' + error.message);
+      });
+    } else {
+      console.error('chrome.runtime.openOptionsPage is not available');
+      alert('设置功能不可用，请检查扩展是否正确加载');
+      setStatus('设置功能不可用');
+    }
+  } catch (error) {
+    console.error('Exception in settings button handler:', error);
+    alert('设置按钮错误: ' + error.message);
+    setStatus('设置按钮错误: ' + error.message);
+  }
 });
 
 $("#runAll").addEventListener("click", runAll);
 $("#copyAll").addEventListener("click", copyAll);
+$("#pinToggle").addEventListener("click", togglePin);
 Array.from(document.querySelectorAll(".copy")).forEach(btn => {
   btn.addEventListener("click", () => copyById(btn.dataset.copy));
 });
@@ -37,8 +79,43 @@ srcEl.addEventListener("keydown", (e) => {
 });
 
 (async function init() {
-  const st = await chrome.storage.sync.get(STORAGE_KEYS.LAST_DIR);
-  dirEl.value = st[STORAGE_KEYS.LAST_DIR] || DEFAULTS.lastDirection;
+  console.log('=== 扩展初始化开始 ===');
+  console.log('Chrome扩展API可用:', !!chrome);
+  console.log('Chrome Runtime可用:', !!chrome.runtime);
+  console.log('Chrome Storage可用:', !!chrome.storage);
+  
+  try {
+    const st = await chrome.storage.sync.get(STORAGE_KEYS.LAST_DIR);
+    dirEl.value = st[STORAGE_KEYS.LAST_DIR] || DEFAULTS.lastDirection;
+    console.log('翻译方向设置加载:', dirEl.value);
+    
+    // 检查是否已有固定窗口
+    const local = await chrome.storage.local.get('pinnedWindowId');
+    if (local.pinnedWindowId) {
+      try {
+        await chrome.windows.get(local.pinnedWindowId);
+        isPinned = true;
+        $("#pinToggle").classList.add("pinned");
+        $("#pinToggle").title = "取消固定";
+        console.log('检测到已固定窗口:', local.pinnedWindowId);
+      } catch {
+        // 窗口已关闭，清理状态
+        await chrome.storage.local.remove('pinnedWindowId');
+        console.log('清理已关闭的固定窗口');
+      }
+    }
+    
+    // 测试设置按钮
+    const settingsBtn = $("#openSettings");
+    console.log('设置按钮元素:', settingsBtn);
+    console.log('设置按钮事件监听器已添加');
+    
+  } catch (error) {
+    console.error('初始化失败:', error);
+    setStatus('初始化失败: ' + error.message);
+  }
+  
+  console.log('=== 扩展初始化完成 ===');
 })();
 
 async function saveDirection(val) {
@@ -62,26 +139,97 @@ async function runAll() {
   const { sl, tl } = splitDir(dirEl.value);
   const targetLang = (tl === "zh-CN") ? "Chinese" : "English";
 
-  setStatus("处理中…");
-  setPre("gBase", ""); setPre("aiTrans", ""); setPre("grammar", ""); setPre("suggest", ""); setPre("tips", "");
+  setStatus("正在翻译...");
+  clearResults();
 
-  // 并发执行：Google + Gemini 四项
+  // 先启动Google翻译（通常最快）
+  const gPromise = googleTranslate(text, sl, tl).then(result => {
+    setPre("gBase", result || "");
+    setStatus("Google翻译完成，AI处理中...");
+    return result;
+  }).catch(e => {
+    console.error('Google translate error:', e);
+    setPre("gBase", "Google翻译失败");
+    return null;
+  });
+
+  // 并行启动AI任务
+  const aiPromise = runGeminiTasks(text, targetLang);
+  
+  // 不等待，立即处理Google结果
+  gPromise;
+  
+  // 处理AI结果
   try {
-    const gPromise = googleTranslate(text, sl, tl);
-    const aiPromise = runGeminiTasks(text, targetLang);
-
-    const [gBase, ai] = await Promise.all([gPromise, aiPromise]);
-
-    setPre("gBase", gBase || "");
+    const ai = await aiPromise;
     setPre("aiTrans", ai.aiTranslate || "");
     setPre("grammar", ai.grammarFix || "");
     setPre("suggest", ai.aiSuggestions || "");
     setPre("tips", ai.learningTips || "");
-
-    setStatus("完成");
+    setStatus("全部完成");
   } catch (e) {
-    console.error(e);
-    setStatus("部分任务失败，请检查设置或稍后再试");
+    console.error('AI tasks error:', e);
+    setStatus("AI处理失败: " + (e.message || e));
+  }
+}
+
+function clearResults() {
+  setPre("gBase", ""); 
+  setPre("aiTrans", ""); 
+  setPre("grammar", ""); 
+  setPre("suggest", ""); 
+  setPre("tips", "");
+}
+
+function togglePin() {
+  isPinned = !isPinned;
+  const pinBtn = $("#pinToggle");
+  
+  if (isPinned) {
+    pinBtn.classList.add("pinned");
+    pinBtn.title = "取消固定";
+    openPinnedWindow();
+  } else {
+    pinBtn.classList.remove("pinned");
+    pinBtn.title = "固定窗口";
+    closePinnedWindow();
+  }
+}
+
+async function openPinnedWindow() {
+  try {
+    const currentWindow = await chrome.windows.getCurrent();
+    const window = await chrome.windows.create({
+      url: chrome.runtime.getURL('popup.html'),
+      type: 'popup',
+      width: 500,
+      height: 700,
+      left: currentWindow.left + 50,
+      top: currentWindow.top + 50,
+      focused: true
+    });
+    
+    // 存储窗口ID以便后续关闭
+    chrome.storage.local.set({ pinnedWindowId: window.id });
+    setStatus("已固定窗口");
+  } catch (e) {
+    console.error('Failed to create pinned window:', e);
+    setStatus("固定窗口失败: " + e.message);
+    isPinned = false;
+    $("#pinToggle").classList.remove("pinned");
+  }
+}
+
+async function closePinnedWindow() {
+  try {
+    const result = await chrome.storage.local.get('pinnedWindowId');
+    if (result.pinnedWindowId) {
+      await chrome.windows.remove(result.pinnedWindowId);
+      await chrome.storage.local.remove('pinnedWindowId');
+    }
+    setStatus("已取消固定");
+  } catch (e) {
+    console.error('Failed to close pinned window:', e);
   }
 }
 
@@ -94,20 +242,17 @@ async function googleTranslate(text, sl, tl) {
   return (data[0] || []).map(x => x[0]).join("");
 }
 
-// Gemini 四任务
 async function runGeminiTasks(text, targetLang) {
   const st = await chrome.storage.sync.get(STORAGE_KEYS.SETTINGS);
   let cfg = st[STORAGE_KEYS.SETTINGS];
   
-  // TODO(human): 实现默认配置处理和详细错误检查
-  // 如果配置为空，使用默认值并保存
   if (!cfg) {
-    cfg = await loadDefaultSettings();
+    cfg = DEFAULTS.settings;
+    await chrome.storage.sync.set({ [STORAGE_KEYS.SETTINGS]: cfg });
   }
   
-  // 验证必要配置
-  if (!cfg?.apiBase) throw new Error("API 地址未配置，请点击'设置'进行配置");
-  if (!cfg?.apiKey) throw new Error("API 密钥未配置，请点击'设置'进行配置");
+  if (!cfg?.apiBase) throw new Error("API地址未配置，请点击设置");
+  if (!cfg?.apiKey) throw new Error("API密钥未配置，请点击设置");
 
   const { apiBase, apiKey, model, provider, authHeaderName, temperature, prompts } = cfg;
 

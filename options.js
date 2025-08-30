@@ -26,11 +26,11 @@ const DEFAULTS = {
     aiTranslate:
       "You are an expert Chinese<>English translator. Translate the user input to {{TARGET_LANG}} with natural, accurate, concise phrasing. Output ONLY the translation.",
     grammarFix:
-      "You are an English writing corrector. Fix grammar/spelling/style of the English text. Return:\n1) Corrected\n2) Brief reasons (bullet points)",
+      "You are an English writing corrector. Fix grammar/spelling/style of the English text. Provide both English and Chinese versions:\n\n**English Version:**\n1) Corrected text\n2) Brief reasons (bullet points)\n\n**中文版本：**\n1) 纠正后的文本\n2) 简要原因（要点形式）",
     aiSuggestions:
-      "Provide 3 alternative phrasings for the text in {{TARGET_LANG}} with tags [formal], [casual], [concise]. Output as a numbered list.",
+      "Provide 3 alternative phrasings for the text in {{TARGET_LANG}}. Give both English and Chinese versions:\n\n**English Version:**\n1. [formal] ...\n2. [casual] ...\n3. [concise] ...\n\n**中文版本：**\n1. [正式] ...\n2. [随意] ...\n3. [简洁] ...",
     learningTips:
-      "From the text (assume target language is {{TARGET_LANG}}), extract:\n- 5 useful collocations/phrases\n- 2 key grammar notes\n- 2 mini exercises (fill-in-the-blank or paraphrase). Hide answers at the end."
+      "From the text (assume target language is {{TARGET_LANG}}), extract learning materials. Provide both English and Chinese versions:\n\n**English Version:**\n- 5 useful collocations/phrases\n- 2 key grammar notes\n- 2 mini exercises (fill-in-the-blank or paraphrase)\nAnswers at the end.\n\n**中文版本：**\n- 5个有用的搭配/短语\n- 2个关键语法要点\n- 2个小练习（填空或改写）\n答案在末尾。"
   }
 };
 
@@ -40,9 +40,14 @@ const stat = $("#stat");
 
 // 初始化：读取已存设置 → 填充表单 → 设置交互
 (async function init() {
+  console.log('=== Options页面初始化开始 ===');
+  
   try {
+    console.log('Chrome存储API可用:', !!chrome.storage);
     const st = await chrome.storage.sync.get(STORAGE_KEYS.SETTINGS);
+    console.log('读取到的设置:', st);
     const cfg = normalizeSettings(st[STORAGE_KEYS.SETTINGS] || DEFAULTS);
+    console.log('标准化后的配置:', cfg);
 
     // ---- 填充“模型（Gemini）”下拉 + 自定义框 ----
     const presetEl = $("#modelPreset");

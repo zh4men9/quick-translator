@@ -9,15 +9,15 @@ const DEFAULTS = {
   settings: {
     apiBase: "http://localhost:3001/proxy/gemini",
     apiKey: "zh4men9",
-    model: "gemini-1.5-flash",
+    model: "gemini-2.5-flash",
     provider: "auto", // auto | openai | gemini
     authHeaderName: "Authorization", // 常见是 Authorization: Bearer xxx
     temperature: 0.4,
     prompts: {
       aiTranslate: "You are an expert Chinese<>English translator. Translate the user input to {{TARGET_LANG}} with natural, accurate, concise phrasing. Output ONLY the translation.",
-      grammarFix: "You are an English writing corrector. Fix grammar/spelling/style of the English text. Return:\n1) Corrected\n2) Brief reasons (bullet points)",
-      aiSuggestions: "Provide 3 alternative phrasings for the text in {{TARGET_LANG}} with tags [formal], [casual], [concise]. Output as a numbered list.",
-      learningTips: "From the text (assume target language is {{TARGET_LANG}}), extract:\n- 5 useful collocations/phrases\n- 2 key grammar notes\n- 2 mini exercises (fill-in-the-blank or paraphrase). Hide answers at the end."
+      grammarFix: "You are an English writing corrector. Fix grammar/spelling/style of the English text. Provide both English and Chinese versions:\n\n**English Version:**\n1) Corrected text\n2) Brief reasons (bullet points)\n\n**中文版本：**\n1) 纠正后的文本\n2) 简要原因（要点形式）",
+      aiSuggestions: "Provide 3 alternative phrasings for the text in {{TARGET_LANG}}. Give both English and Chinese versions:\n\n**English Version:**\n1. [formal] ...\n2. [casual] ...\n3. [concise] ...\n\n**中文版本：**\n1. [正式] ...\n2. [随意] ...\n3. [简洁] ...",
+      learningTips: "From the text (assume target language is {{TARGET_LANG}}), extract learning materials. Provide both English and Chinese versions:\n\n**English Version:**\n- 5 useful collocations/phrases\n- 2 key grammar notes\n- 2 mini exercises (fill-in-the-blank or paraphrase)\nAnswers at the end.\n\n**中文版本：**\n- 5个有用的搭配/短语\n- 2个关键语法要点\n- 2个小练习（填空或改写）\n答案在末尾。"
     }
   }
 };
@@ -40,6 +40,14 @@ chrome.runtime.onInstalled.addListener(async () => {
     title: "学习版翻译（Gemini）",
     contexts: ["selection"]
   });
+});
+
+// 监听窗口关闭事件，清理pin状态
+chrome.windows.onRemoved.addListener(async (windowId) => {
+  const result = await chrome.storage.local.get('pinnedWindowId');
+  if (result.pinnedWindowId === windowId) {
+    await chrome.storage.local.remove('pinnedWindowId');
+  }
 });
 
 async function ensureDefaults() {

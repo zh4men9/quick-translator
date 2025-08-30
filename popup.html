@@ -6,20 +6,22 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <div class="row">
-      <select id="dir" title="翻译方向">
-        <option value="auto->zh-CN">自动识别 → 中文</option>
-        <option value="auto->en">自动识别 → English</option>
-        <option value="zh-CN->en">中文 → English</option>
-        <option value="en->zh-CN">English → 中文</option>
-      </select>
-      <button id="swap" title="交换方向">交换</button>
-      <a id="openSettings" href="#" title="设置">设置</a>
-    </div>
-  </header>
+  <div class="container">
+    <header>
+      <div class="row">
+        <select id="dir" title="翻译方向">
+          <option value="auto->zh-CN">自动识别 → 中文</option>
+          <option value="auto->en">自动识别 → English</option>
+          <option value="zh-CN->en">中文 → English</option>
+          <option value="en->zh-CN">English → 中文</option>
+        </select>
+        <button id="swap" title="交换方向">🔄</button>
+        <button id="pinToggle" title="固定窗口">📌</button>
+        <a id="openSettings" href="#" title="设置">⚙️ 设置</a>
+      </div>
+    </header>
 
-  <main>
+    <main>
     <textarea id="src" placeholder="在此粘贴或输入要翻译/学习的文本…（Ctrl/⌘ + Enter 直接生成）"></textarea>
 
     <div class="row">
@@ -52,7 +54,8 @@
       <div class="panel-head"><span>英语学习建议</span><button class="copy" data-copy="tips">复制</button></div>
       <pre id="tips" class="pre"></pre>
     </section>
-  </main>
+    </main>
+  </div>
 
   <script src="popup.js"></script>
 </body>
