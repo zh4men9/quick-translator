@@ -130,7 +130,7 @@
 #### API配置方案
 
 **方案一：使用gptload代理（推荐）**
-1. 部署 [gptload](https://github.com/AprilNEA/GPTLoad) 项目
+1. 部署 [gpt-load](https://www.gpt-load.com/) 项目
 2. 配置多个Gemini API key提高稳定性
 3. 扩展设置中使用：
    - API地址：`http://localhost:3001/proxy/gemini`
@@ -162,14 +162,22 @@
 ### 项目结构
 ```
 quick-translator/
-├── manifest.json          # 扩展配置文件
-├── popup.html             # 主界面HTML
-├── popup.js               # 主界面逻辑
-├── background.js          # 后台服务脚本  
+├── manifest.json          # 扩展配置文件（v3）
+├── popup.html             # 主界面HTML（包含历史面板）
+├── popup.js               # 主界面逻辑（历史管理+AI功能）
+├── background.js          # 后台服务脚本（右键菜单+API调用）
 ├── options.html           # 设置页面HTML
 ├── options.js             # 设置页面逻辑
-├── styles.css             # 样式文件
-└── README.md              # 项目文档
+├── styles.css             # 样式文件（蓝色渐变主题）
+├── icons/                 # 图标文件夹
+│   ├── icon-16.png        # 16x16 PNG图标
+│   ├── icon-32.png        # 32x32 PNG图标
+│   ├── icon-48.png        # 48x48 PNG图标
+│   └── icon-128.png       # 128x128 PNG图标
+├── CLAUDE.md              # Claude Code工作指南
+├── README.md              # 项目文档
+├── RELEASE_CHECKLIST.md   # 发布前检查清单
+└── TEST_CHECKLIST.md      # 功能测试清单
 ```
 
 ### 本地开发
