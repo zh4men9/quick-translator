@@ -18,7 +18,7 @@ const GEMINI_MODELS = [
 const DEFAULTS = {
   apiBase: "http://localhost:3001/proxy/gemini",
   apiKey: "zh4men9",
-  model: "gemini-2.0-flash",
+  model: "gemini-2.5-flash",
   provider: "auto", // auto | openai | gemini
   authHeaderName: "Authorization",
   temperature: 0.4,
@@ -75,10 +75,17 @@ const stat = $("#stat");
     $("#authHeaderName").value = cfg.authHeaderName || "Authorization";
     $("#temperature").value = cfg.temperature ?? 0.4;
 
+    // 如果没有保存的提示词配置，使用最新默认值
     $("#p_aiTranslate").value = cfg.prompts?.aiTranslate || DEFAULTS.prompts.aiTranslate;
     $("#p_grammarFix").value = cfg.prompts?.grammarFix || DEFAULTS.prompts.grammarFix;
     $("#p_aiSuggestions").value = cfg.prompts?.aiSuggestions || DEFAULTS.prompts.aiSuggestions;
     $("#p_learningTips").value = cfg.prompts?.learningTips || DEFAULTS.prompts.learningTips;
+    
+    console.log('当前显示的提示词:', {
+      grammarFix: $("#p_grammarFix").value.substring(0, 100) + '...',
+      aiSuggestions: $("#p_aiSuggestions").value.substring(0, 100) + '...',
+      learningTips: $("#p_learningTips").value.substring(0, 100) + '...'
+    });
 
     // 下拉切换：控制“自定义模型”输入框显隐
     presetEl.addEventListener("change", () => {
@@ -95,6 +102,22 @@ const stat = $("#stat");
     stat.textContent = "初始化失败，请刷新重试";
   }
 })();
+
+// 重置为默认
+$("#reset").addEventListener("click", async () => {
+  if (!confirm("确定要重置所有设置为默认值吗？这将清除您的自定义配置。")) return;
+  
+  try {
+    // 清除存储的设置
+    await chrome.storage.sync.remove(STORAGE_KEYS.SETTINGS);
+    
+    // 重新加载页面显示默认值
+    location.reload();
+  } catch (e) {
+    console.error("Reset failed:", e);
+    stat.textContent = "重置失败: " + e.message;
+  }
+});
 
 // 保存
 $("#save").addEventListener("click", async () => {
